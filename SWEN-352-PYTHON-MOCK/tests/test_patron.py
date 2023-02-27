@@ -3,8 +3,8 @@ from library import patron
 
 class TestPatron(unittest.TestCase):
 
-    def setUp(self):
-        self.pat = patron('fname', 'lname', '15', '1')
+    # def setUp(self):
+    #     self.pat = patron('fname', 'lname', '15', '1')
 
     def test_valid_name(self):
         test_patron = patron.Patron('fname', 'lname', '15', '1')

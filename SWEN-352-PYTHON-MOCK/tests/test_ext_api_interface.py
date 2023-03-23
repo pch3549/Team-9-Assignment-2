@@ -47,6 +47,53 @@ class TestExtApiInterface(unittest.TestCase):
         expected_url = f"{self.api.API_URL}?q={book_title}"
         self.api.make_request.assert_called_once_with(expected_url)
     
+    def test_get_book_info_url(self):
+        self.api.make_request = Mock(return_value=[])
+        book_title = "Test Book"
+        self.api.get_book_info(book_title)
+        expected_url = f"{self.api.API_URL}?q={book_title}"
+        self.api.make_request.assert_called_once_with(expected_url)
+
+    def test_get_book_info_return_none(self):
+        self.api.make_request = Mock(return_value=None)
+        book_title = "Test Book"
+        self.api.get_book_info(book_title)
+        expected_url = f"{self.api.API_URL}?q={book_title}"
+        self.api.make_request.assert_called_once_with(expected_url)
+
+    def test_get_book_info_title(self):
+        self.api.make_request = Mock(return_value={"docs": [{"title": "Book"}]})
+        book_title = "Test Book"
+        books_info = self.api.get_book_info(book_title)
+        self.assertNotIn('XXtitleXX', books_info[0])
+    
+    def test_get_book_info_publisher(self):
+        self.api.make_request = Mock(return_value={"docs": [{"title": "Book", "publisher": "Bob"}]})
+        book_title = "Test Book"
+        books_info = self.api.get_book_info(book_title)
+        self.assertIn('publisher', books_info[0])
+        self.assertEqual(books_info[0]['publisher'], 'Bob')
+    
+    def test_get_book_info_publisheryear(self):
+        self.api.make_request = Mock(return_value={"docs": [{"title": "Book", "publisher": "Bob", "publish_year": 6969}]})
+        book_title = "Test Book"
+        books_info = self.api.get_book_info(book_title)
+        self.assertIn('publish_year', books_info[0])
+
+    def test_get_book_info_language(self):
+        self.api.make_request = Mock(return_value={"docs": [{"title": "Book", "publisher": "Bob", "publish_year": 6969, "language": "English"}]})
+        book_title = "Test Book"
+        books_info = self.api.get_book_info(book_title)
+        self.assertIn('language', books_info[0])
+        
+    def test_is_book_available_length(self):
+        self.api.make_request = Mock(return_value={"docs": [{"Book"}]})
+        self.assertTrue(self.api.is_book_available(self.book))
+
+    def test_is_book_available_length_2(self):
+        self.api.make_request = Mock(return_value={"docs": [{"Book", "Book2"}]})
+        self.assertTrue(self.api.is_book_available(self.book))
+    
     def test_is_book_available(self):
         self.api.make_request = Mock(return_value=self.json_data)
         self.assertTrue(self.api.is_book_available(self.book))
@@ -54,6 +101,13 @@ class TestExtApiInterface(unittest.TestCase):
     def test_is_book_available_empty_response(self):
         self.api.make_request = Mock(return_value=[])
         self.assertFalse(self.api.is_book_available(self.book))
+    
+    def test_books_by_author_url(self):
+        self.api.make_request = Mock(return_value=[])
+        author = "Lee"
+        self.api.books_by_author(author)
+        expected_url = f"{self.api.API_URL}?author={author}"
+        self.api.make_request.assert_called_once_with(expected_url)
     
     def test_books_by_author(self):
         self.api.make_request = Mock(return_value=self.json_data)
@@ -71,3 +125,10 @@ class TestExtApiInterface(unittest.TestCase):
     def test_get_book_info_empty_response(self):
         self.api.make_request = Mock(return_value=[])
         self.assertEqual(self.api.get_book_info(self.book), [])
+    
+    def test_get_ebooks_url(self):
+        self.api.make_request = Mock(return_value=[])
+        book_title = "Test Book"
+        self.api.get_ebooks(book_title)
+        expected_url = f"{self.api.API_URL}?q={book_title}"
+        self.api.make_request.assert_called_once_with(expected_url)

@@ -7,6 +7,10 @@ class TestLibbraryDBInterface(unittest.TestCase):
 
     def setUp(self):
         self.db_interface = library_db_interface.Library_DB()
+    
+    def test_database_file(self):
+        db = library_db_interface.Library_DB()
+        self.assertEqual(db.DATABASE_FILE, 'db.json')
 
     def test_insert_patron_not_in_db(self):
         patron_mock = Mock()
@@ -47,6 +51,25 @@ class TestLibbraryDBInterface(unittest.TestCase):
         patron_mock = Mock()
         self.db_interface.retrieve_patron = Mock(return_value=None)
         self.assertEqual(self.db_interface.update_patron(patron_mock), None)
+    
+    def test_update_patron(self):
+        # Create a new patron
+        fname = "John"
+        lname = "Doe"
+        age = 30
+        memberID = 123
+        patron = Patron(fname, lname, age, memberID)
+        self.db_interface.insert_patron(patron)
+        new_fname = "Jane"
+        new_lname = "Doe"
+        new_age = 35
+        new_patron = Patron(new_fname, new_lname, new_age, memberID)
+        self.db_interface.update_patron(new_patron)
+        updated_patron = self.db_interface.retrieve_patron(memberID)
+        # Check that the patron's data has been updated correctly
+        self.assertEqual(updated_patron.get_fname(), new_fname)
+        self.assertEqual(updated_patron.get_lname(), new_lname)
+        self.assertEqual(updated_patron.get_age(), new_age)
 
     def test_retrieve_patron_not_in_db(self):
         self.db_interface.db.purge_tables()
@@ -63,7 +86,7 @@ class TestLibbraryDBInterface(unittest.TestCase):
         self.assertEqual(result.get_lname(), patron_mock.get_lname())
         self.assertEqual(result.get_age(), patron_mock.get_age())
         self.assertEqual(result.get_borrowed_books(), patron_mock.get_borrowed_books())
-
+    
     def test_insert_patron_is_none(self):
         self.assertIsNone(self.db_interface.insert_patron(None))
     

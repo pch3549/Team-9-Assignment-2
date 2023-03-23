@@ -47,6 +47,11 @@ class TestLibrary(unittest.TestCase):
         self.lib.db.retrieve_patron = Mock(return_value=patron)
         self.assertTrue(self.lib.is_patron_registered(patron))
     
+    def test_register_patron_returns_id(self):
+        patron_id = self.lib.register_patron("Bob", "Smith", 69, 21)
+        # Check that the patron ID is not None
+        self.assertIsNotNone(patron_id)
+    
     def test_is_patron_registered_false(self):
         patron = Patron("Big", "Bob", 20, 5)
         self.lib.db.retrieve_patron = Mock(return_value=None)

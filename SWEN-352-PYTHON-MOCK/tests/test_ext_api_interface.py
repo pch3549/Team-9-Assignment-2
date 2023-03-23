@@ -13,6 +13,10 @@ class TestExtApiInterface(unittest.TestCase):
             self.books_data = json.loads(f.read())
         with open('tests_data/json_data.txt', 'r') as f:
             self.json_data = json.loads(f.read())
+        
+    def test_url(self):
+        api = ext_api_interface.Books_API()
+        self.assertEqual(api.API_URL, 'http://openlibrary.org/search.json')
 
     def test_make_request_True(self):
         attr = {'json.return_value': dict()}
@@ -33,30 +37,37 @@ class TestExtApiInterface(unittest.TestCase):
         self.assertEqual(self.api.get_ebooks(self.book), self.books_data)
     
     def test_get_ebooks_empty_response(self):
-    	self.api.make_request = Mock(return_value=[])
-    	self.assertEqual(self.api.get_ebooks(self.book), [])
+        self.api.make_request = Mock(return_value=[])
+        self.assertEqual(self.api.get_ebooks(self.book), [])
+    
+    def test_is_book_available_url(self):
+        self.api.make_request = Mock(return_value=[])
+        book_title = "Test Book"
+        self.api.is_book_available(book_title)
+        expected_url = f"{self.api.API_URL}?q={book_title}"
+        self.api.make_request.assert_called_once_with(expected_url)
     
     def test_is_book_available(self):
-    	self.api.make_request = Mock(return_value=self.json_data)
-    	self.assertTrue(self.api.is_book_available(self.book))
+        self.api.make_request = Mock(return_value=self.json_data)
+        self.assertTrue(self.api.is_book_available(self.book))
    
     def test_is_book_available_empty_response(self):
-    	self.api.make_request = Mock(return_value=[])
-    	self.assertFalse(self.api.is_book_available(self.book))
+        self.api.make_request = Mock(return_value=[])
+        self.assertFalse(self.api.is_book_available(self.book))
     
     def test_books_by_author(self):
-    	self.api.make_request = Mock(return_value=self.json_data)
-    	expected_books = [book['title_suggest'] for book in self.json_data['docs']]
-    	self.assertEqual(self.api.books_by_author("Mark Lutz"), expected_books)
+        self.api.make_request = Mock(return_value=self.json_data)
+        expected_books = [book['title_suggest'] for book in self.json_data['docs']]
+        self.assertEqual(self.api.books_by_author("Mark Lutz"), expected_books)
     	
     def test_books_by_author_empty_response(self):
-    	self.api.make_request = Mock(return_value=[])
-    	self.assertEqual(self.api.books_by_author("Mark Lutz"), [])
+        self.api.make_request = Mock(return_value=[])
+        self.assertEqual(self.api.books_by_author("Mark Lutz"), [])
     
     def test_get_book_info_returns_list(self):
         self.api.make_request = Mock(return_value=self.json_data)
         self.assertIsInstance(self.api.get_book_info(self.book), list)
         
     def test_get_book_info_empty_response(self):
-    	self.api.make_request = Mock(return_value=[])
-    	self.assertEqual(self.api.get_book_info(self.book), [])
+        self.api.make_request = Mock(return_value=[])
+        self.assertEqual(self.api.get_book_info(self.book), [])

@@ -1,19 +1,40 @@
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 from library import patron
 
 class TestPatron(unittest.TestCase):
 
     def setUp(self):
         self.pat = patron.Patron("fname", "lname", "15", "1")
-      
+    
+    def test_first_name_with_digit_raises_invalid_name_exception(self):
+        with self.assertRaises(patron.InvalidNameException):
+            patron.Patron("f1name", "lname", 15, 1)
+
+    def test_last_name_with_digit_raises_invalid_name_exception(self):
+        with self.assertRaises(patron.InvalidNameException):
+            patron.Patron("fname", "l1name", 15, 1)
+    
+    def test_names_with_digit_raises_invalid_name_exception(self):
+        with self.assertRaises(patron.InvalidNameException):
+            patron.Patron("f2name", "l1name", 15, 1)
+    
+    def test_names_with_digit_raises_invalid_name_exception(self):
+        with self.assertRaises(patron.InvalidNameException):
+            patron.Patron("f2name", "l1name", 15, 1)
+    
+    def test_names_with_digit_raises_correct_exception(self):
+        with self.assertRaises(patron.InvalidNameException) as cm:
+            patron.Patron("f1name", "l2name", 15, 1)
+        self.assertEqual(str(cm.exception), "Name should not contain numbers")
+    
     def test_valid_name(self):
         pat = patron.Patron("fname", "lname", "15", "1")
         self.assertTrue(isinstance(pat, patron.Patron))
 
     def test_invalid_name(self):
         self.assertRaises(patron.InvalidNameException, patron.Patron, '1fname', '1lname', '20', '1234')
-        
+            
     def test_add_borrowed_book(self):
         test_patron = patron.Patron("fname", "lname", "15", "1")
         test_patron.add_borrowed_book("book1")
